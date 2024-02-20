@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">My To Do</string>
+    <string name="tasks">Tasks</string>
+    <string name="search_icon">Search icon</string>
+    <string name="sort_icon">Sort Icon</string>
+    <string name="more_icon">More Icon</string>
+    <string name="search_todos">Search todos</string>
+    <string name="clear_icon">Clear Icon</string>
+    <string name="circle_icon">Circle Icon</string>
+    <string name="delete_all">Delete All</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="remove_all_tasks">Remove All Tasks?</string>
+    <string name="delete_all_alert_dialog_text">Are you sure you want to remove all Tasks? There is no going back after this action.</string>
+    <string name="sad_emoji_icon">Sad Emoji Icon</string>
+    <string name="add_icon">Add Icon</string>
 </resources>
