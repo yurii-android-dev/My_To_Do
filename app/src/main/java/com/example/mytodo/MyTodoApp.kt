@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.mytodo.ui.theme.addtodo.AddTodoScreen
 import com.example.mytodo.ui.theme.home.HomeScreen
 
 
@@ -21,8 +22,14 @@ fun MyTodoApp(
                 onTodoClicked = {},
                 onSearchClick = {},
                 onSortClick = {},
-                onDeleteAllClick = {}
+                onDeleteAllClick = {},
+                addFloatingButtonClicked = {
+                    navController.navigate(Screens.AddTodo.route)
+                }
             )
+        }
+        composable(Screens.AddTodo.route) {
+            AddTodoScreen()
         }
     }
 }

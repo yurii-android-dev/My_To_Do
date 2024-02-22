@@ -60,15 +60,17 @@ import com.example.mytodo.models.Priority
 import com.example.mytodo.models.SortPopup
 import com.example.mytodo.models.Todo
 import com.example.mytodo.ui.theme.MyToDoTheme
+import com.example.mytodo.util.toIconColor
 
 
 @Composable
 fun HomeScreen(
-    homeViewModel:HomeViewModel = viewModel(),
+    homeViewModel: HomeViewModel = viewModel(),
     onTodoClicked: (Int) -> Unit,
     onSearchClick: (String) -> Unit,
     onSortClick: (Priority) -> Unit,
-    onDeleteAllClick: () -> Unit
+    onDeleteAllClick: () -> Unit,
+    addFloatingButtonClicked: () -> Unit
 ) {
     val uiState = homeViewModel.uiState.collectAsState().value
 
@@ -84,7 +86,7 @@ fun HomeScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { /*TODO*/ }) {
+            FloatingActionButton(onClick = addFloatingButtonClicked) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = stringResource(R.string.add_icon)
@@ -381,12 +383,7 @@ fun TodoList(
         ) { todoItem ->
             TodoItem(
                 todo = todoItem,
-                iconColor = when (todoItem.priority) {
-                    Priority.LOW -> Color.Green
-                    Priority.MEDIUM -> Color.Yellow
-                    Priority.HIGH -> Color.Red
-                    Priority.NONE -> Color.Gray
-                },
+                iconColor = todoItem.priority.toIconColor(),
                 onTodoClicked = onTodoClicked
             )
         }
@@ -459,7 +456,8 @@ fun HomeScreenPreview() {
             onTodoClicked = {},
             onSearchClick = {},
             onSortClick = {},
-            onDeleteAllClick = {}
+            onDeleteAllClick = {},
+            addFloatingButtonClicked = {}
         )
     }
 }
