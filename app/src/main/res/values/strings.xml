@@ -14,4 +14,14 @@
     <string name="delete_all_alert_dialog_text">Are you sure you want to remove all Tasks? There is no going back after this action.</string>
     <string name="sad_emoji_icon">Sad Emoji Icon</string>
     <string name="add_icon">Add Icon</string>
+    <string name="add_task">Add Task</string>
+    <string name="arrow_back_icon">Arrow back icon</string>
+    <string name="check_icon">Check icon</string>
+    <string name="title_label">Title</string>
+    <string name="low">LOW</string>
+    <string name="medium">MEDIUM</string>
+    <string name="high">HIGH</string>
+    <string name="description_label">Description</string>
+    <string name="close_icon">Close icon</string>
+    <string name="delete_icon">Delete icon</string>
 </resources>

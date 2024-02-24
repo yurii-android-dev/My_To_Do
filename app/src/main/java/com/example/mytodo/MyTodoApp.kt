@@ -29,7 +29,12 @@ fun MyTodoApp(
             )
         }
         composable(Screens.AddTodo.route) {
-            AddTodoScreen()
+            AddTodoScreen(
+                navigateBackClicked = {
+                    navController.popBackStack()
+                },
+                addClicked = {}
+            )
         }
     }
 }
