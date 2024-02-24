@@ -10,7 +10,7 @@ class TodoRepositoryImpl(
 ): TodoRepository {
 
     override fun getTodosWithPriority(priority: Priority): Flow<List<Todo>> {
-        return if (priority == Priority.LOW) dao.getTodos() else dao.getTodosWithPriority(priority)
+        return if (priority == Priority.NONE) dao.getTodos() else dao.getTodosWithPriority(priority)
     }
 
     override suspend fun deleteAllTodos() = dao.deleteAllTodos()
