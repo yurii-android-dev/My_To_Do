@@ -19,21 +19,12 @@ fun MyTodoApp(
     ) {
         composable(Screens.Home.route) {
             HomeScreen(
-                onTodoClicked = {},
-                onSearchClick = {},
-                onSortClick = {},
-                onDeleteAllClick = {},
-                addFloatingButtonClicked = {
-                    navController.navigate(Screens.AddTodo.route)
-                }
+                navController = navController
             )
         }
         composable(Screens.AddTodo.route) {
             AddTodoScreen(
-                navigateBackClicked = {
-                    navController.popBackStack()
-                },
-                addClicked = {}
+                navController = navController
             )
         }
     }

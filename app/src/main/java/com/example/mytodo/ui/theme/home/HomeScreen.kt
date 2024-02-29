@@ -54,7 +54,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.mytodo.R
+import com.example.mytodo.Screens
 import com.example.mytodo.data.LocalSortPopupData.options
 import com.example.mytodo.models.Priority
 import com.example.mytodo.models.SortPopup
@@ -65,12 +68,8 @@ import com.example.mytodo.util.toIconColor
 
 @Composable
 fun HomeScreen(
-    homeViewModel: HomeViewModel = viewModel(),
-    onTodoClicked: (Int) -> Unit,
-    onSearchClick: (String) -> Unit,
-    onSortClick: (Priority) -> Unit,
-    onDeleteAllClick: () -> Unit,
-    addFloatingButtonClicked: () -> Unit
+    homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.FACTORY),
+    navController: NavHostController
 ) {
     val uiState = homeViewModel.uiState.collectAsState().value
 
@@ -80,13 +79,13 @@ fun HomeScreen(
                 viewModel = homeViewModel,
                 uiState = uiState,
                 onTextChange = homeViewModel::onSearchTextChanged,
-                onSearchClick = onSearchClick,
-                onSortClick = onSortClick,
-                onDeleteAllClick = onDeleteAllClick
+                onSearchClick = {},
+                onSortClick = {},
+                onDeleteAllClick = {}
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = addFloatingButtonClicked) {
+            FloatingActionButton(onClick = { navController.navigate(Screens.AddTodo.route) }) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = stringResource(R.string.add_icon)
@@ -97,7 +96,7 @@ fun HomeScreen(
         HomeBody(
             uiState = uiState,
             paddingValues = paddingValues,
-            onTodoClicked = onTodoClicked
+            onTodoClicked = {}
         )
     }
 }
@@ -453,11 +452,7 @@ fun EmptyContent(
 fun HomeScreenPreview() {
     MyToDoTheme {
         HomeScreen(
-            onTodoClicked = {},
-            onSearchClick = {},
-            onSortClick = {},
-            onDeleteAllClick = {},
-            addFloatingButtonClicked = {}
+            navController = rememberNavController()
         )
     }
 }

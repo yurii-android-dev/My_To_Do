@@ -1,5 +1,6 @@
 package com.example.mytodo.ui.theme.addtodo
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -15,11 +16,15 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.mytodo.R
 import com.example.mytodo.models.Priority
 import com.example.mytodo.ui.theme.MyToDoTheme
@@ -27,31 +32,46 @@ import com.example.mytodo.ui.theme.components.InputContentSection
 
 @Composable
 fun AddTodoScreen(
-    addTodoViewModel: AddTodoAndUpdateViewModel = viewModel(),
-    navigateBackClicked: () -> Unit,
-    addClicked: () -> Unit
+    viewModel: AddTodoAndUpdateViewModel =
+        viewModel(factory = AddTodoAndUpdateViewModel.FACTORY),
+    navController: NavHostController
 ) {
 
-    val uiState = addTodoViewModel.uiState.collectAsState().value
+    val uiState by viewModel.uiState.collectAsState()
+
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
             AddTodoTopBar(
-                navigateBackClicked = navigateBackClicked,
-                addClicked = addClicked
+                navigateBackClicked = {
+                    navController.popBackStack()
+                },
+                addClicked = {
+                    if (uiState.titleText.isNotEmpty()) {
+                        viewModel.addTodo()
+                        navController.popBackStack()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Title can not be empty",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
             )
         }
     ) { paddingValues ->
         AddTodoBody(
             uiState = uiState,
-            titleTextChanged = addTodoViewModel::onTitleTextChanged,
-            onExpandedChange = addTodoViewModel::updateDropDownMenuExpanded,
-            onDismissRequest = { addTodoViewModel.toogleDropDownMenuExpanded() },
+            titleTextChanged = viewModel::onTitleTextChanged,
+            onExpandedChange = viewModel::updateDropDownMenuExpanded,
+            onDismissRequest = { viewModel.toogleDropDownMenuExpanded() },
             onDropdownMenuItemClicked = { priority ->
-                addTodoViewModel.updatePriority(priority)
-                addTodoViewModel.toogleDropDownMenuExpanded()
+                viewModel.updatePriority(priority)
+                viewModel.toogleDropDownMenuExpanded()
             },
-            descriptionTextChanged = addTodoViewModel::onDescriptionTextChanged,
+            descriptionTextChanged = viewModel::onDescriptionTextChanged,
             paddingValues = paddingValues
         )
     }
@@ -130,8 +150,7 @@ fun AddTodoTopBar(
 fun AddTodoScreenPreview() {
     MyToDoTheme {
         AddTodoScreen(
-            navigateBackClicked = {},
-            addClicked = {}
+            navController = rememberNavController()
         )
     }
 }

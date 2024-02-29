@@ -36,7 +36,7 @@ fun InputContentSection(
     priority: Priority,
     onDismissRequest: () -> Unit,
     onDropdownMenuItemClicked: (Priority) -> Unit,
-    descriptionText: String,
+    descriptionText: String?,
     descriptionTextChanged: (String) -> Unit,
 ) {
 
@@ -101,7 +101,7 @@ fun InputContentSection(
         }
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
-            value = descriptionText,
+            value = descriptionText ?: "",
             onValueChange = descriptionTextChanged,
             label = { Text(text = stringResource(R.string.description_label)) },
             modifier = Modifier.fillMaxSize()
