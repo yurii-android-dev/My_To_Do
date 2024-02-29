@@ -16,6 +16,9 @@ interface TodoDao {
     @Query("SELECT * FROM todo_entity")
     fun getTodos(): Flow<List<Todo>>
 
+    @Query("SELECT * FROM todo_entity WHERE id = :id")
+    fun getTodoById(id: Int): Flow<Todo>
+
     @Query("SELECT * FROM todo_entity ORDER BY priority = :priority")
     fun getTodosWithPriority(priority: Priority): Flow<List<Todo>>
 

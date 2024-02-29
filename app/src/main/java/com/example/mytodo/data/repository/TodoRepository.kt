@@ -8,6 +8,8 @@ interface TodoRepository {
 
     fun getTodosWithPriority(priority: Priority): Flow<List<Todo>>
 
+    fun getTodoById(id: Int): Flow<Todo>
+
     suspend fun deleteAllTodos()
 
     suspend fun insertTodo(todo: Todo)
