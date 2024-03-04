@@ -25,8 +25,6 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SentimentDissatisfied
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -63,6 +61,7 @@ import com.example.mytodo.models.Priority
 import com.example.mytodo.models.SortPopup
 import com.example.mytodo.models.Todo
 import com.example.mytodo.ui.theme.MyToDoTheme
+import com.example.mytodo.ui.theme.components.ShowAlertDialog
 import com.example.mytodo.util.toIconColor
 
 
@@ -183,7 +182,9 @@ fun HomeTopAppBar(
                 )
             }
             if (uiState.isAlertDialogOpen) {
-                DeleteAllAlertDialog(
+                ShowAlertDialog(
+                    title = R.string.remove_all_tasks,
+                    description = R.string.delete_all_alert_dialog_text,
                     onDismissClick = { viewModel.updateIsAlertDialogOpen() },
                     onConfirmClick = onDeleteAllClick,
                     onDismissRequest = { viewModel.updateIsAlertDialogOpen() }
@@ -335,34 +336,7 @@ fun DeletePopupBox(
     }
 }
 
-@Composable
-fun DeleteAllAlertDialog(
-    onDismissClick: () -> Unit,
-    onConfirmClick: () -> Unit,
-    onDismissRequest: () -> Unit
-) {
 
-    AlertDialog(
-        title = {
-            Text(text = stringResource(R.string.remove_all_tasks))        
-        },
-        text = {
-            Text(text = stringResource(R.string.delete_all_alert_dialog_text))
-        },
-        dismissButton = {
-            Button(onClick = onDismissClick) {
-                Text(text = stringResource(R.string.no))
-            }
-        },
-        confirmButton = {
-            Button(onClick = onConfirmClick) {
-                Text(text = stringResource(R.string.yes))
-            }
-        },
-        onDismissRequest = onDismissRequest
-    )
-
-}
 
 @Composable
 fun TodoList(
@@ -475,7 +449,9 @@ fun SortPopupBoxPreview() {
 @Composable
 fun DeleteAllAlertDialogPreview() {
     MyToDoTheme {
-        DeleteAllAlertDialog(
+        ShowAlertDialog(
+            title = R.string.remove_all_tasks,
+            description = R.string.delete_all_alert_dialog_text,
             onDismissClick = {},
             onConfirmClick = {},
             onDismissRequest = {}
