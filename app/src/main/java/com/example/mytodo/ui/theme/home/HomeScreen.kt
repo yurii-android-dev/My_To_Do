@@ -96,7 +96,9 @@ fun HomeScreen(
         HomeBody(
             uiState = uiState,
             paddingValues = paddingValues,
-            onTodoClicked = {}
+            onTodoClicked = { id ->
+                navController.navigate(Screens.UpdateTodo.passId(id))
+            }
         )
     }
 }

@@ -16,12 +16,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.mytodo.R
 import com.example.mytodo.ui.theme.MyToDoTheme
 import com.example.mytodo.ui.theme.addtodo.AddTodoAndUpdateViewModel
@@ -29,19 +32,27 @@ import com.example.mytodo.ui.theme.components.InputContentSection
 
 @Composable
 fun UpdateScreen(
+    navController: NavHostController,
     viewModel: AddTodoAndUpdateViewModel =
         viewModel(factory = AddTodoAndUpdateViewModel.FACTORY)
 ) {
 
     val uiState = viewModel.uiState.collectAsState().value
 
+    LaunchedEffect(key1 = true) {
+        viewModel.getTodoWithId()
+    }
+
     Scaffold(
         topBar = {
             UpdateTodoTopBar(
-                title = uiState.titleText,
-                onCloseClicked = {},
+                title = viewModel.updateTopBarText.value,
+                onCloseClicked = { navController.popBackStack() },
                 onDeleteClicked = {},
-                onUpdateClicked = {}
+                onUpdateClicked = {
+                    viewModel.updateTodo()
+                    navController.popBackStack()
+                }
             )
         }
     ) {  innerPadding ->
@@ -120,7 +131,9 @@ fun UpdateTodoTopBar(
 @Composable
 fun UpdateScreenPreview() {
     MyToDoTheme {
-        UpdateScreen()
+        UpdateScreen(
+            navController = rememberNavController()
+        )
     }
 }
 

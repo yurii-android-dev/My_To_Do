@@ -1,7 +1,10 @@
 package com.example.mytodo.ui.theme.addtodo
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -15,11 +18,20 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AddTodoAndUpdateViewModel(
+    savedStateHandle: SavedStateHandle,
     private val repository: TodoRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddTodoAndUpdateUiState())
+    
     val uiState = _uiState.asStateFlow()
+
+    private val todoId: Int = savedStateHandle["todoId"] ?: 0
+
+    private val todoById = repository.getTodoById(todoId)
+
+    var updateTopBarText = mutableStateOf("")
+        private set
 
     fun onTitleTextChanged(text: String) {
         _uiState.update { state ->
@@ -62,12 +74,44 @@ class AddTodoAndUpdateViewModel(
         }
     }
 
+    fun getTodoWithId() {
+        viewModelScope.launch {
+            todoById.collect { todo ->
+                updateTopBarText.value = todo.title
+                _uiState.update { state ->
+                    state.copy(
+                        titleText = todo.title,
+                        priority = todo.priority,
+                        descriptionText = todo.description
+                    )
+                }
+            }
+        }
+    }
+
+    fun updateTodo() {
+        viewModelScope.launch {
+            val todo = Todo(
+                id = todoId,
+                title = _uiState.value.titleText,
+                priority = _uiState.value.priority,
+                description = _uiState.value.descriptionText
+            )
+            todoById.collect { todoWithId ->
+                if (todo != todoWithId) {
+                    repository.updateTodo(todo)
+                }
+            }
+        }
+    }
+
     companion object {
         val FACTORY = viewModelFactory {
             initializer {
+                val savedStateHandle = this.createSavedStateHandle()
                 val repository = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MyTodoApplication).container
                     .todoRepository
-                AddTodoAndUpdateViewModel(repository)
+                AddTodoAndUpdateViewModel(savedStateHandle, repository)
             }
         }
     }
