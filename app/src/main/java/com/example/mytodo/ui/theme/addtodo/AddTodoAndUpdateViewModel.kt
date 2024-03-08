@@ -12,6 +12,7 @@ import com.example.mytodo.MyTodoApplication
 import com.example.mytodo.data.repository.TodoRepository
 import com.example.mytodo.models.Priority
 import com.example.mytodo.models.Todo
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -26,12 +27,21 @@ class AddTodoAndUpdateViewModel(
     
     val uiState = _uiState.asStateFlow()
 
-    private val todoId: Int = savedStateHandle["todoId"] ?: 0
+    private val todoId: Int = savedStateHandle["todoId"] ?:-1
 
     private val todoById = repository.getTodoById(todoId)
 
+    private var updateTodo: Todo? = null
+
     var updateTopBarText = mutableStateOf("")
         private set
+
+    var isDeleteTodoAlertDialogOpen = mutableStateOf(false)
+        private set
+
+    fun toogleIsDeleteTodoAlertDialogOpen() {
+        isDeleteTodoAlertDialogOpen.value = !isDeleteTodoAlertDialogOpen.value
+    }
 
     fun onTitleTextChanged(text: String) {
         _uiState.update { state ->
@@ -76,7 +86,9 @@ class AddTodoAndUpdateViewModel(
 
     fun getTodoWithId() {
         viewModelScope.launch {
+            val job = this
             todoById.collect { todo ->
+                updateTodo = todo
                 updateTopBarText.value = todo.title
                 _uiState.update { state ->
                     state.copy(
@@ -85,6 +97,7 @@ class AddTodoAndUpdateViewModel(
                         descriptionText = todo.description
                     )
                 }
+                job.cancel()
             }
         }
     }
@@ -97,10 +110,16 @@ class AddTodoAndUpdateViewModel(
                 priority = _uiState.value.priority,
                 description = _uiState.value.descriptionText
             )
-            todoById.collect { todoWithId ->
-                if (todo != todoWithId) {
-                    repository.updateTodo(todo)
-                }
+            if (todo != updateTodo) {
+                repository.updateTodo(todo)
+            }
+        }
+    }
+
+    fun deleteTodo() {
+        viewModelScope.launch {
+            updateTodo?.let { todo ->
+                repository.deleteTodo(todo)
             }
         }
     }

@@ -24,4 +24,6 @@
     <string name="description_label">Description</string>
     <string name="close_icon">Close icon</string>
     <string name="delete_icon">Delete icon</string>
+    <string name="delete_todo_title">Remove %s</string>
+    <string name="delete_todo_description">Are you sure you want to remove %s</string>
 </resources>

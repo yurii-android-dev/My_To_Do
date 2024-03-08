@@ -183,8 +183,8 @@ fun HomeTopAppBar(
             }
             if (uiState.isAlertDialogOpen) {
                 ShowAlertDialog(
-                    title = R.string.remove_all_tasks,
-                    description = R.string.delete_all_alert_dialog_text,
+                    title = stringResource(id = R.string.remove_all_tasks),
+                    description = stringResource(id = R.string.delete_all_alert_dialog_text),
                     onDismissClick = { viewModel.updateIsAlertDialogOpen() },
                     onConfirmClick = onDeleteAllClick,
                     onDismissRequest = { viewModel.updateIsAlertDialogOpen() }
@@ -450,8 +450,8 @@ fun SortPopupBoxPreview() {
 fun DeleteAllAlertDialogPreview() {
     MyToDoTheme {
         ShowAlertDialog(
-            title = R.string.remove_all_tasks,
-            description = R.string.delete_all_alert_dialog_text,
+            title = stringResource(id = R.string.remove_all_tasks),
+            description = stringResource(id = R.string.delete_all_alert_dialog_text),
             onDismissClick = {},
             onConfirmClick = {},
             onDismissRequest = {}

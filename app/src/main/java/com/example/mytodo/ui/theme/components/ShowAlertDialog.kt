@@ -9,8 +9,8 @@ import com.example.mytodo.R
 
 @Composable
 fun ShowAlertDialog(
-    title: Int,
-    description: Int,
+    title: String,
+    description: String,
     onDismissClick: () -> Unit,
     onConfirmClick: () -> Unit,
     onDismissRequest: () -> Unit
@@ -18,10 +18,10 @@ fun ShowAlertDialog(
 
     AlertDialog(
         title = {
-            Text(text = stringResource(title))
+            Text(text = title)
         },
         text = {
-            Text(text = stringResource(description))
+            Text(text = description)
         },
         dismissButton = {
             Button(onClick = onDismissClick) {

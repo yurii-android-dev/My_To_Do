@@ -29,6 +29,7 @@ import com.example.mytodo.R
 import com.example.mytodo.ui.theme.MyToDoTheme
 import com.example.mytodo.ui.theme.addtodo.AddTodoAndUpdateViewModel
 import com.example.mytodo.ui.theme.components.InputContentSection
+import com.example.mytodo.ui.theme.components.ShowAlertDialog
 
 @Composable
 fun UpdateScreen(
@@ -39,7 +40,7 @@ fun UpdateScreen(
 
     val uiState = viewModel.uiState.collectAsState().value
 
-    LaunchedEffect(key1 = true) {
+    LaunchedEffect(Unit) {
         viewModel.getTodoWithId()
     }
 
@@ -48,12 +49,35 @@ fun UpdateScreen(
             UpdateTodoTopBar(
                 title = viewModel.updateTopBarText.value,
                 onCloseClicked = { navController.popBackStack() },
-                onDeleteClicked = {},
+                onDeleteClicked = { viewModel.toogleIsDeleteTodoAlertDialogOpen() },
                 onUpdateClicked = {
                     viewModel.updateTodo()
                     navController.popBackStack()
                 }
             )
+            if (viewModel.isDeleteTodoAlertDialogOpen.value) {
+                ShowAlertDialog(
+                    title = stringResource(
+                        id = R.string.delete_todo_title,
+                        "'${viewModel.updateTopBarText.value}'"
+                    ),
+                    description = stringResource(
+                        id = R.string.delete_todo_description,
+                        "'${viewModel.updateTopBarText.value}'"
+                    ),
+                    onDismissClick = {
+                        viewModel.toogleIsDeleteTodoAlertDialogOpen()
+                    },
+                    onConfirmClick = {
+                        viewModel.deleteTodo()
+                        viewModel.toogleIsDeleteTodoAlertDialogOpen()
+                        navController.popBackStack()
+                    },
+                    onDismissRequest = {
+                        viewModel.toogleIsDeleteTodoAlertDialogOpen()
+                    }
+                )
+            }
         }
     ) {  innerPadding ->
         InputContentSection(
