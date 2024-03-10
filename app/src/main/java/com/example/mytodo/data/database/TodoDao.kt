@@ -22,7 +22,7 @@ interface TodoDao {
     @Query("SELECT * FROM todo_entity WHERE id = :id")
     fun getTodoById(id: Int): Flow<Todo>
 
-    @Query("SELECT * FROM todo_entity ORDER BY priority = :priority")
+    @Query("SELECT * FROM todo_entity ORDER BY priority = :priority DESC")
     fun getTodosWithPriority(priority: Priority): Flow<List<Todo>>
 
     @Query("DELETE FROM todo_entity")

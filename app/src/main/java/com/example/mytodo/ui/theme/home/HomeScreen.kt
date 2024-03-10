@@ -86,7 +86,10 @@ fun HomeScreen(
                     homeViewModel.getTodos()
                     homeViewModel.clearSearchTodos()
                 },
-                onSortClick = {},
+                onSortClick = { priority ->
+                    homeViewModel.getTodos(priority)
+                    homeViewModel.updateIsSortExpanded()
+                },
                 onDeleteAllClick = {}
             )
         },
