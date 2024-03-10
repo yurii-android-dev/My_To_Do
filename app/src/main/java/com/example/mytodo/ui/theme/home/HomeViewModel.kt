@@ -1,5 +1,6 @@
 package com.example.mytodo.ui.theme.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 class HomeViewModel(
     private val repository: TodoRepository
@@ -55,12 +57,36 @@ class HomeViewModel(
     }
 
     fun getTodos(priority: Priority = Priority.NONE) {
-        viewModelScope.launch {
-            repository.getTodosWithPriority(priority).collect { todos ->
-                _uiState.update { state ->
-                    state.copy(todos = todos)
+        try {
+            viewModelScope.launch {
+                repository.getTodosWithPriority(priority).collect { todos ->
+                    _uiState.update { state ->
+                        state.copy(todos = todos)
+                    }
                 }
             }
+        } catch (e: Exception) {
+            Log.d("HomeViewModel", e.message.toString())
+        }
+    }
+
+    fun searchTodos(text: String) {
+        try {
+            viewModelScope.launch {
+                repository.getTodosBySearch(text).collect { searchTodos ->
+                    _uiState.update { state ->
+                        state.copy(searchTodos = searchTodos)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.d("HomeViewModel", e.message.toString())
+        }
+    }
+
+    fun clearSearchTodos() {
+        _uiState.update { state ->
+            state.copy(searchTodos = emptyList())
         }
     }
 

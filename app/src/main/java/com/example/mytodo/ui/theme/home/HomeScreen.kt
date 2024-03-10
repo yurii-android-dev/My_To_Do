@@ -78,7 +78,14 @@ fun HomeScreen(
                 viewModel = homeViewModel,
                 uiState = uiState,
                 onTextChange = homeViewModel::onSearchTextChanged,
-                onSearchClick = {},
+                onSearchClick = {
+                    homeViewModel.searchTodos(uiState.searchText)
+                },
+                onClearClick = {
+                    homeViewModel.updateIsSearchExpanded()
+                    homeViewModel.getTodos()
+                    homeViewModel.clearSearchTodos()
+                },
                 onSortClick = {},
                 onDeleteAllClick = {}
             )
@@ -108,9 +115,30 @@ fun HomeBody(
     paddingValues: PaddingValues,
     onTodoClicked: (Int) -> Unit,
 ) {
-    if (uiState.todos.isNotEmpty()) {
-        TodoList(
+    if (!uiState.isSearchExpanded) {
+        HandleListContent(
             todos = uiState.todos,
+            paddingValues = paddingValues,
+            onTodoClicked = onTodoClicked
+        )
+    } else {
+        HandleListContent(
+            todos = uiState.searchTodos,
+            paddingValues = paddingValues,
+            onTodoClicked = onTodoClicked
+        )
+    }
+}
+
+@Composable
+fun HandleListContent(
+    todos: List<Todo>,
+    paddingValues: PaddingValues,
+    onTodoClicked: (Int) -> Unit,
+) {
+    if (todos.isNotEmpty()) {
+        TodoList(
+            todos = todos,
             paddingValues = paddingValues,
             onTodoClicked = onTodoClicked
         )
@@ -127,6 +155,7 @@ fun HomeTopAppBar(
     onTextChange: (String) -> Unit,
     onSearchClick: (String) -> Unit,
     onSortClick: (Priority) -> Unit,
+    onClearClick: () -> Unit,
     onDeleteAllClick: () -> Unit
 ) {
 
@@ -146,7 +175,7 @@ fun HomeTopAppBar(
                     text = uiState.searchText,
                     onTextChange = onTextChange,
                     onSearchClick = onSearchClick,
-                    onClearClick = { viewModel.updateIsSearchExpanded() }
+                    onClearClick = onClearClick
                 )
             }
             Spacer(modifier = Modifier.width(16.dp))

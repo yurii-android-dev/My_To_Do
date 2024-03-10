@@ -10,6 +10,8 @@ interface TodoRepository {
 
     fun getTodoById(id: Int): Flow<Todo>
 
+    fun getTodosBySearch(text: String): Flow<List<Todo>>
+
     suspend fun deleteAllTodos()
 
     suspend fun insertTodo(todo: Todo)

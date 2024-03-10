@@ -13,6 +13,10 @@ class TodoRepositoryImpl(
         return if (priority == Priority.NONE) dao.getTodos() else dao.getTodosWithPriority(priority)
     }
 
+    override fun getTodosBySearch(text: String): Flow<List<Todo>> {
+        return dao.getTodosBySearch(text)
+    }
+
     override fun getTodoById(id: Int): Flow<Todo> {
         return dao.getTodoById(id)
     }

@@ -16,6 +16,9 @@ interface TodoDao {
     @Query("SELECT * FROM todo_entity")
     fun getTodos(): Flow<List<Todo>>
 
+    @Query("SELECT * FROM todo_entity WHERE title LIKE '%' || :text || '%'")
+    fun getTodosBySearch(text: String): Flow<List<Todo>>
+
     @Query("SELECT * FROM todo_entity WHERE id = :id")
     fun getTodoById(id: Int): Flow<Todo>
 
