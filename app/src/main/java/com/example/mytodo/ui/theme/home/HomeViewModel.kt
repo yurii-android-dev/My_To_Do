@@ -90,6 +90,12 @@ class HomeViewModel(
         }
     }
 
+    fun deleteTodos() {
+        viewModelScope.launch {
+            repository.deleteAllTodos()
+        }
+    }
+
     companion object {
         val FACTORY = viewModelFactory {
             initializer {

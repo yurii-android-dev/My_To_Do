@@ -30,6 +30,10 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -37,6 +41,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -63,6 +69,7 @@ import com.example.mytodo.models.Todo
 import com.example.mytodo.ui.theme.MyToDoTheme
 import com.example.mytodo.ui.theme.components.ShowAlertDialog
 import com.example.mytodo.util.toIconColor
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -72,7 +79,11 @@ fun HomeScreen(
 ) {
     val uiState = homeViewModel.uiState.collectAsState().value
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             HomeTopAppBar(
                 viewModel = homeViewModel,
@@ -90,7 +101,30 @@ fun HomeScreen(
                     homeViewModel.getTodos(priority)
                     homeViewModel.updateIsSortExpanded()
                 },
-                onDeleteAllClick = {}
+                onDeleteAllClick = {
+                    if (uiState.todos.isNotEmpty()) {
+                        homeViewModel.deleteTodos()
+                        homeViewModel.updateIsAlertDialogOpen()
+                        scope.launch {
+                            val result = snackbarHostState.showSnackbar(
+                                message = "Successfully deleted all todos",
+                                actionLabel = "Ok",
+                                duration = SnackbarDuration.Indefinite
+                            )
+                            when (result) {
+                                SnackbarResult.ActionPerformed -> {}
+                                SnackbarResult.Dismissed -> {}
+                            }
+                        }
+                    } else {
+                        homeViewModel.updateIsAlertDialogOpen()
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                "You don't have todos for delete"
+                            )
+                        }
+                    }
+                }
             )
         },
         floatingActionButton = {
