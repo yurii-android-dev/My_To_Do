@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.mytodo.MyTodoApplication
 import com.example.mytodo.data.repository.TodoRepository
 import com.example.mytodo.models.Priority
+import com.example.mytodo.models.Todo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -93,6 +94,18 @@ class HomeViewModel(
     fun deleteTodos() {
         viewModelScope.launch {
             repository.deleteAllTodos()
+        }
+    }
+
+    fun deleteTodo(todo: Todo) {
+        viewModelScope.launch {
+            repository.deleteTodo(todo)
+        }
+    }
+
+    fun saveTodo(todo: Todo) {
+        viewModelScope.launch {
+            repository.insertTodo(todo)
         }
     }
 

@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+
 package com.example.mytodo.ui.theme.home
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,9 +25,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SentimentDissatisfied
+import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissState
+import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -34,15 +41,22 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -141,6 +155,21 @@ fun HomeScreen(
             paddingValues = paddingValues,
             onTodoClicked = { id ->
                 navController.navigate(Screens.UpdateTodo.passId(id))
+            },
+            onDelete = { todo ->
+                homeViewModel.deleteTodo(todo)
+                scope.launch {
+                     val result = snackbarHostState.showSnackbar(
+                        "You don't have todos for delete",
+                         actionLabel = "Undo"
+                    )
+                    when (result) {
+                        SnackbarResult.Dismissed -> {}
+                        SnackbarResult.ActionPerformed -> {
+                            homeViewModel.saveTodo(todo)
+                        }
+                    }
+                }
             }
         )
     }
@@ -151,18 +180,21 @@ fun HomeBody(
     uiState: HomeUiState,
     paddingValues: PaddingValues,
     onTodoClicked: (Int) -> Unit,
+    onDelete: (Todo) -> Unit
 ) {
     if (!uiState.isSearchExpanded) {
         HandleListContent(
             todos = uiState.todos,
             paddingValues = paddingValues,
-            onTodoClicked = onTodoClicked
+            onTodoClicked = onTodoClicked,
+            onDelete = onDelete
         )
     } else {
         HandleListContent(
             todos = uiState.searchTodos,
             paddingValues = paddingValues,
-            onTodoClicked = onTodoClicked
+            onTodoClicked = onTodoClicked,
+            onDelete = onDelete
         )
     }
 }
@@ -172,12 +204,14 @@ fun HandleListContent(
     todos: List<Todo>,
     paddingValues: PaddingValues,
     onTodoClicked: (Int) -> Unit,
+    onDelete: (Todo) -> Unit
 ) {
     if (todos.isNotEmpty()) {
         TodoList(
             todos = todos,
             paddingValues = paddingValues,
-            onTodoClicked = onTodoClicked
+            onTodoClicked = onTodoClicked,
+            onDelete = onDelete
         )
     } else {
         EmptyContent()
@@ -402,12 +436,11 @@ fun DeletePopupBox(
     }
 }
 
-
-
 @Composable
 fun TodoList(
     todos: List<Todo>,
     onTodoClicked: (Int) -> Unit,
+    onDelete: (Todo) -> Unit,
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues = PaddingValues.Absolute(0.dp)
 ) {
@@ -422,10 +455,77 @@ fun TodoList(
                 todo.id
             }
         ) { todoItem ->
-            TodoItem(
-                todo = todoItem,
-                iconColor = todoItem.priority.toIconColor(),
-                onTodoClicked = onTodoClicked
+            Box(
+                modifier = Modifier.animateItemPlacement()
+            ) {
+                SwipeToDeleteContainer(item = todoItem, onDelete = onDelete) { todo ->
+                    TodoItem(
+                        todo = todo,
+                        iconColor = todo.priority.toIconColor(),
+                        onTodoClicked = onTodoClicked
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun <T> SwipeToDeleteContainer(
+    item: T,
+    onDelete: (T) -> Unit,
+    content: @Composable (T) -> Unit
+) {
+    var isRemoved by remember {
+        mutableStateOf(false)
+    }
+    val state = rememberDismissState(
+        confirmValueChange = { value ->
+            if (value == DismissValue.DismissedToStart) {
+                isRemoved = true
+                true
+            } else {
+                false
+            }
+        }
+    )
+
+    LaunchedEffect(key1 = isRemoved) {
+        if(isRemoved) {
+            onDelete(item)
+        }
+    }
+
+    SwipeToDismiss(
+        state = state,
+        background = {
+            SwipeBackground(swipeDismissState = state)
+        },
+        dismissContent = { content(item) },
+        directions = setOf(DismissDirection.EndToStart)
+    )
+}
+
+@Composable
+fun SwipeBackground(
+    swipeDismissState: DismissState
+) {
+    val color = if (swipeDismissState.dismissDirection == DismissDirection.EndToStart) {
+        Color.Red
+    } else Color.Transparent
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color)
+            .padding(16.dp),
+        contentAlignment = Alignment.CenterEnd
+    ) {
+        if (swipeDismissState.dismissDirection == DismissDirection.EndToStart) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = stringResource(id = R.string.delete_icon),
+                tint = Color.White
             )
         }
     }
@@ -438,30 +538,34 @@ fun TodoItem(
     onTodoClicked: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .clickable {
-                onTodoClicked(todo.id)
-            }
+    Surface(
+        modifier = modifier.fillMaxWidth()
     ) {
-        Icon(
-            imageVector = Icons.Default.Circle,
-            contentDescription = stringResource(id = R.string.circle_icon),
-            tint = iconColor,
-            modifier = Modifier.align(Alignment.End)
-        )
-        Text(
-            text = todo.title,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = todo.description ?: "",
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .clickable {
+                    onTodoClicked(todo.id)
+                }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Circle,
+                contentDescription = stringResource(id = R.string.circle_icon),
+                tint = iconColor,
+                modifier = Modifier.align(Alignment.End)
+            )
+            Text(
+                text = todo.title,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = todo.description ?: "",
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 
