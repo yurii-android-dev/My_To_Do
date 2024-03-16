@@ -160,7 +160,7 @@ fun HomeScreen(
                 homeViewModel.deleteTodo(todo)
                 scope.launch {
                      val result = snackbarHostState.showSnackbar(
-                        "You don't have todos for delete",
+                        "Successfully delete todo",
                          actionLabel = "Undo",
                          duration = SnackbarDuration.Short
                     )
