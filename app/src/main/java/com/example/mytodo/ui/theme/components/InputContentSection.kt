@@ -53,7 +53,8 @@ fun InputContentSection(
             value = titleText,
             onValueChange = titleTextChanged,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text(text = stringResource(R.string.title_label)) }
+            label = { Text(text = stringResource(R.string.title_label)) },
+            singleLine = true
         )
         Spacer(modifier = Modifier.height(8.dp))
         ExposedDropdownMenuBox(

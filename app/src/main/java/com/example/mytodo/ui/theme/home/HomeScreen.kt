@@ -553,12 +553,14 @@ fun TodoItem(
                 imageVector = Icons.Default.Circle,
                 contentDescription = stringResource(id = R.string.circle_icon),
                 tint = iconColor,
-                modifier = Modifier.align(Alignment.End)
+                modifier = Modifier.align(Alignment.End).size(22.dp)
             )
             Text(
                 text = todo.title,
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = todo.description ?: "",
