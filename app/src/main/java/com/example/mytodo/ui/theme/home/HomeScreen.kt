@@ -161,7 +161,8 @@ fun HomeScreen(
                 scope.launch {
                      val result = snackbarHostState.showSnackbar(
                         "You don't have todos for delete",
-                         actionLabel = "Undo"
+                         actionLabel = "Undo",
+                         duration = SnackbarDuration.Short
                     )
                     when (result) {
                         SnackbarResult.Dismissed -> {}
