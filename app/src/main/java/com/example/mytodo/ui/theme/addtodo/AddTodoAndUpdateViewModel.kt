@@ -13,19 +13,12 @@ import com.example.mytodo.data.repository.TodoRepository
 import com.example.mytodo.models.Priority
 import com.example.mytodo.models.Todo
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AddTodoAndUpdateViewModel(
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val repository: TodoRepository
 ) : ViewModel() {
-
-    private val _uiState = MutableStateFlow(AddTodoAndUpdateUiState())
-    
-    val uiState = _uiState.asStateFlow()
 
     private val todoId: Int = savedStateHandle["todoId"] ?:-1
 
@@ -39,46 +32,48 @@ class AddTodoAndUpdateViewModel(
     var isDeleteTodoAlertDialogOpen = mutableStateOf(false)
         private set
 
+    var titleText = mutableStateOf(savedStateHandle["titleText"] ?: "")
+        private set
+    var isDropDownMenuExpanded = mutableStateOf(false)
+        private set
+    var descriptionText = mutableStateOf(savedStateHandle["descriptionText"] ?: "")
+        private set
+    var priority = mutableStateOf(savedStateHandle["priority"] ?: Priority.LOW)
+        private set
+
     fun toogleIsDeleteTodoAlertDialogOpen() {
         isDeleteTodoAlertDialogOpen.value = !isDeleteTodoAlertDialogOpen.value
     }
 
     fun onTitleTextChanged(text: String) {
-        _uiState.update { state ->
-            state.copy(titleText = text)
-        }
+        titleText.value = text
+        savedStateHandle["titleText"] = titleText.value
     }
 
     fun onDescriptionTextChanged(text: String) {
-        _uiState.update { state ->
-            state.copy(descriptionText = text)
-        }
+        descriptionText.value = text
+        savedStateHandle["descriptionText"] = descriptionText.value
     }
 
     fun updateDropDownMenuExpanded(isExpanded: Boolean) {
-        _uiState.update { state ->
-            state.copy(isDropDownMenuExpanded = isExpanded)
-        }
+        isDropDownMenuExpanded.value = isExpanded
     }
 
     fun toogleDropDownMenuExpanded() {
-        _uiState.update { state ->
-            state.copy(isDropDownMenuExpanded = !state.isDropDownMenuExpanded)
-        }
+        isDropDownMenuExpanded.value = !isDropDownMenuExpanded.value
     }
 
-    fun updatePriority(priority: Priority) {
-        _uiState.update { state ->
-            state.copy(priority = priority)
-        }
+    fun updatePriority(priorityType: Priority) {
+        priority.value = priorityType
+        savedStateHandle["priority"] = priority.value
     }
 
     fun addTodo() {
         viewModelScope.launch {
             val todo = Todo(
-                title = _uiState.value.titleText,
-                priority = _uiState.value.priority,
-                description = _uiState.value.descriptionText
+                title = titleText.value,
+                priority = priority.value,
+                description = descriptionText.value
             )
             repository.insertTodo(todo)
         }
@@ -90,13 +85,9 @@ class AddTodoAndUpdateViewModel(
             todoById.collect { todo ->
                 updateTodo = todo
                 updateTopBarText.value = todo.title
-                _uiState.update { state ->
-                    state.copy(
-                        titleText = todo.title,
-                        priority = todo.priority,
-                        descriptionText = todo.description
-                    )
-                }
+                titleText.value = todo.title
+                priority.value = todo.priority
+                descriptionText.value = todo.description ?: ""
                 job.cancel()
             }
         }
@@ -106,9 +97,9 @@ class AddTodoAndUpdateViewModel(
         viewModelScope.launch {
             val todo = Todo(
                 id = todoId,
-                title = _uiState.value.titleText,
-                priority = _uiState.value.priority,
-                description = _uiState.value.descriptionText
+                title = titleText.value,
+                priority = priority.value,
+                description = descriptionText.value
             )
             if (todo != updateTodo) {
                 repository.updateTodo(todo)

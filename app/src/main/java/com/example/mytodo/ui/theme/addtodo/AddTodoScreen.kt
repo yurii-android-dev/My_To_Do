@@ -15,8 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -37,8 +35,6 @@ fun AddTodoScreen(
     navController: NavHostController
 ) {
 
-    val uiState by viewModel.uiState.collectAsState()
-
     val context = LocalContext.current
 
     Scaffold(
@@ -48,7 +44,7 @@ fun AddTodoScreen(
                     navController.popBackStack()
                 },
                 addClicked = {
-                    if (uiState.titleText.isNotEmpty()) {
+                    if (viewModel.titleText.value.isNotEmpty()) {
                         viewModel.addTodo()
                         navController.popBackStack()
                     } else {
@@ -63,7 +59,10 @@ fun AddTodoScreen(
         }
     ) { paddingValues ->
         AddTodoBody(
-            uiState = uiState,
+            title = viewModel.titleText.value,
+            isDropDownMenuExpanded = viewModel.isDropDownMenuExpanded.value,
+            priority = viewModel.priority.value,
+            description = viewModel.descriptionText.value,
             titleTextChanged = viewModel::onTitleTextChanged,
             onExpandedChange = viewModel::updateDropDownMenuExpanded,
             onDismissRequest = { viewModel.toogleDropDownMenuExpanded() },
@@ -79,7 +78,10 @@ fun AddTodoScreen(
 
 @Composable
 fun AddTodoBody(
-    uiState: AddTodoAndUpdateUiState,
+    title: String,
+    isDropDownMenuExpanded: Boolean,
+    priority: Priority,
+    description: String,
     titleTextChanged: (String) -> Unit,
     onExpandedChange: (Boolean) -> Unit,
     onDismissRequest: () -> Unit,
@@ -88,14 +90,14 @@ fun AddTodoBody(
     paddingValues: PaddingValues = PaddingValues.Absolute()
 ) {
     InputContentSection(
-        titleText = uiState.titleText,
+        titleText = title,
         titleTextChanged = titleTextChanged,
-        isExpanded = uiState.isDropDownMenuExpanded,
+        isExpanded = isDropDownMenuExpanded,
         onExpandedChange = onExpandedChange,
-        priority = uiState.priority,
+        priority = priority,
         onDismissRequest = onDismissRequest,
         onDropdownMenuItemClicked = onDropdownMenuItemClicked,
-        descriptionText = uiState.descriptionText,
+        descriptionText = description,
         descriptionTextChanged = descriptionTextChanged,
         modifier = Modifier.padding(paddingValues)
     )
@@ -160,7 +162,10 @@ fun AddTodoScreenPreview() {
 fun AddTodoBodyPreview() {
     MyToDoTheme {
         AddTodoBody(
-            uiState = AddTodoAndUpdateUiState(),
+            title = "Test Title",
+            isDropDownMenuExpanded = false,
+            priority = Priority.LOW,
+            description = "Test Description",
             titleTextChanged = {},
             descriptionTextChanged = {},
             onExpandedChange = {},

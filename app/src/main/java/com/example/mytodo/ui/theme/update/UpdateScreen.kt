@@ -17,7 +17,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,8 +36,6 @@ fun UpdateScreen(
     viewModel: AddTodoAndUpdateViewModel =
         viewModel(factory = AddTodoAndUpdateViewModel.FACTORY)
 ) {
-
-    val uiState = viewModel.uiState.collectAsState().value
 
     LaunchedEffect(Unit) {
         viewModel.getTodoWithId()
@@ -81,17 +78,17 @@ fun UpdateScreen(
         }
     ) {  innerPadding ->
         InputContentSection(
-            titleText = uiState.titleText,
+            titleText = viewModel.titleText.value,
             titleTextChanged = viewModel::onTitleTextChanged,
-            isExpanded = uiState.isDropDownMenuExpanded,
+            isExpanded = viewModel.isDropDownMenuExpanded.value,
             onExpandedChange = viewModel::updateDropDownMenuExpanded,
-            priority = uiState.priority,
+            priority = viewModel.priority.value,
             onDismissRequest = { viewModel.toogleDropDownMenuExpanded() },
             onDropdownMenuItemClicked = { priority ->
                 viewModel.updatePriority(priority)
                 viewModel.toogleDropDownMenuExpanded()
             },
-            descriptionText = uiState.descriptionText,
+            descriptionText = viewModel.descriptionText.value,
             descriptionTextChanged = viewModel::onDescriptionTextChanged,
             modifier = Modifier.padding(innerPadding)
         )
