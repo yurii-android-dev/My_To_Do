@@ -1,8 +1,5 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-
 package com.example.mytodo.ui.theme.home
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,9 +26,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SentimentDissatisfied
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissState
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -42,13 +36,15 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
-import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberDismissState
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -457,7 +453,7 @@ fun TodoList(
             }
         ) { todoItem ->
             Box(
-                modifier = Modifier.animateItemPlacement()
+                modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
             ) {
                 SwipeToDeleteContainer(item = todoItem, onDelete = onDelete) { todo ->
                     TodoItem(
@@ -480,9 +476,9 @@ fun <T> SwipeToDeleteContainer(
     var isRemoved by remember {
         mutableStateOf(false)
     }
-    val state = rememberDismissState(
+    val state = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
-            if (value == DismissValue.DismissedToStart) {
+            if (value == SwipeToDismissBoxValue.EndToStart) {
                 isRemoved = true
                 true
             } else {
@@ -497,21 +493,23 @@ fun <T> SwipeToDeleteContainer(
         }
     }
 
-    SwipeToDismiss(
+    SwipeToDismissBox(
         state = state,
-        background = {
+        backgroundContent = {
             SwipeBackground(swipeDismissState = state)
         },
-        dismissContent = { content(item) },
-        directions = setOf(DismissDirection.EndToStart)
+        enableDismissFromStartToEnd = false,
+        enableDismissFromEndToStart = true,
+        gesturesEnabled = false,
+        content = { content(item) },
     )
 }
 
 @Composable
 fun SwipeBackground(
-    swipeDismissState: DismissState
+    swipeDismissState: SwipeToDismissBoxState
 ) {
-    val color = if (swipeDismissState.dismissDirection == DismissDirection.EndToStart) {
+    val color = if (swipeDismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
         Color.Red
     } else Color.Transparent
 
@@ -522,7 +520,7 @@ fun SwipeBackground(
             .padding(16.dp),
         contentAlignment = Alignment.CenterEnd
     ) {
-        if (swipeDismissState.dismissDirection == DismissDirection.EndToStart) {
+        if (swipeDismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
             Icon(
                 imageVector = Icons.Default.Delete,
                 contentDescription = stringResource(id = R.string.delete_icon),
